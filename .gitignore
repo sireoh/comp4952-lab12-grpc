@@ -1,3 +1,6 @@
+/BlazorGrpcClient/bin
 /BlazorGrpcClient/obj
+/GrpcStudentsClient/bin
 /GrpcStudentsClient/obj
+/GrpcStudentsServer/bin
 /GrpcStudentsServer/obj

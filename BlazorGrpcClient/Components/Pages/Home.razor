@@ -1,7 +1,29 @@
 ﻿@page "/"
+@using GrpcStudentsClient;
 
-<PageTitle>Home</PageTitle>
+@inject StudentRemote.StudentRemoteClient _grpcClient
 
-<h1>Hello, world!</h1>
+@code {
+    private List<StudentModel> students = new();
 
-Welcome to your new app.
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _grpcClient.RetrieveAllStudentsAsync(new Empty());
+        students = response.Items.ToList();
+    }
+}
+
+<h3>All Students</h3>
+@if (students.Count == 0)
+{
+    <p>No students found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var student in students)
+        {
+            <li>@student.FirstName @student.LastName (ID: @student.StudentId, School: @student.School)</li>
+        }
+    </ul>
+}

@@ -1,4 +1,5 @@
 using BlazorGrpcClient.Components;
+using GrpcStudentsClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,11 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// add grpc client
-// builder.Services.AddGrpcClient<StudentRemote.StudentRemoteClient>(options =>
-// {
-//     options.Address = new Uri("http://localhost:5052");
-// });
+// Add grpc client
+builder.Services.AddGrpcClient<StudentRemote.StudentRemoteClient>(options =>
+{
+    options.Address = new Uri("http://localhost:5052");
+});
 
 var app = builder.Build();
 
