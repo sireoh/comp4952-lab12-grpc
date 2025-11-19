@@ -4,3 +4,7 @@
 /GrpcStudentsClient/obj
 /GrpcStudentsServer/bin
 /GrpcStudentsServer/obj
+/GrpcBasics.AppHost/bin
+/GrpcBasics.AppHost/obj
+/GrpcBasics.ServiceDefaults/bin
+/GrpcBasics.ServiceDefaults/obj

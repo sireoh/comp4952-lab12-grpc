@@ -26,4 +26,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GrpcBasics.ServiceDefaults\GrpcBasics.ServiceDefaults.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -29,4 +29,8 @@
     <Folder Include="Protos/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GrpcBasics.ServiceDefaults\GrpcBasics.ServiceDefaults.csproj" />
+  </ItemGroup>
+
 </Project>
