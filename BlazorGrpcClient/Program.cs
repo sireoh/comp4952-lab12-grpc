@@ -7,10 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add grpc client
+builder.AddServiceDefaults();
+
 builder.Services.AddGrpcClient<StudentRemote.StudentRemoteClient>(options =>
 {
-    options.Address = new Uri("http://localhost:5052");
+    options.Address = new Uri("http://backend");
 });
 
 var app = builder.Build();

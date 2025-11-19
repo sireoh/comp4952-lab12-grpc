@@ -1,9 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Add the Blazor frontend
-builder.AddProject<Projects.BlazorGrpcClient>("blazorgrpcclient");
-
-// Add the gRPC server
-builder.AddProject<Projects.GrpcStudentsServer>("grpcstudentsserver");
+// This goes into AppHost project
+var grpc = builder.AddProject<Projects.GrpcStudentsServer>("backend");
+builder.AddProject<Projects.BlazorGrpcClient>("frontend")
+    .WithReference(grpc);
 
 builder.Build().Run();

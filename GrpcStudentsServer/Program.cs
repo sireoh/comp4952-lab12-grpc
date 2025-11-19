@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Aspire service defaults
+builder.AddServiceDefaults();
+
 // Add services to the container.
 builder.Services.AddGrpc();
 
