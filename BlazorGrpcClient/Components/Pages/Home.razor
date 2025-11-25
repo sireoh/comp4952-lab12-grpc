@@ -1,29 +1,247 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using GrpcStudentsClient;
 
 @inject StudentRemote.StudentRemoteClient _grpcClient
 
 @code {
     private List<StudentModel> students = new();
+    private StudentModel? selectedStudent;
+    private StudentModel newStudent = new();
+    private StudentModel updateStudent = new();
+    private int getStudentId;
+    private int deleteStudentId;
+    private string message = "";
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await _grpcClient.RetrieveAllStudentsAsync(new Empty());
-        students = response.Items.ToList();
+        await LoadStudents();
+    }
+
+    private async Task LoadStudents()
+    {
+        try
+        {
+            var response = await _grpcClient.RetrieveAllStudentsAsync(new Empty());
+            students = response.Items.ToList();
+            message = "";
+        }
+        catch (Exception ex)
+        {
+            message = $"Error loading students: {ex.Message}";
+        }
+    }
+
+    private async Task GetStudentInfo()
+    {
+        try
+        {
+            var request = new StudentLookupModel { StudentId = getStudentId };
+            selectedStudent = await _grpcClient.GetStudentInfoAsync(request);
+            message = "Student retrieved successfully.";
+        }
+        catch (Exception ex)
+        {
+            selectedStudent = null;
+            message = $"Error retrieving student: {ex.Message}";
+        }
+    }
+
+    private async Task InsertStudent()
+    {
+        try
+        {
+            var reply = await _grpcClient.InsertStudentAsync(newStudent);
+            message = reply.Result;
+            if (reply.IsOk)
+            {
+                await LoadStudents();
+                newStudent = new();
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error inserting student: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateStudent()
+    {
+        try
+        {
+            var reply = await _grpcClient.UpdateStudentAsync(updateStudent);
+            message = reply.Result;
+            if (reply.IsOk)
+            {
+                await LoadStudents();
+                updateStudent = new();
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error updating student: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteStudent()
+    {
+        try
+        {
+            var request = new StudentLookupModel { StudentId = deleteStudentId };
+            var reply = await _grpcClient.DeleteStudentAsync(request);
+            message = reply.Result;
+            if (reply.IsOk)
+            {
+                await LoadStudents();
+                deleteStudentId = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error deleting student: {ex.Message}";
+        }
     }
 }
 
-<h3>All Students</h3>
-@if (students.Count == 0)
-{
-    <p>No students found.</p>
-}
-else
-{
-    <ul>
+<style>
+    .section-bg {
+        background: #2a2a2a;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #3a3a3a;
+    }
+
+    .section-bg input,
+    .section-bg label {
+        color: white;
+    }
+
+    .section-bg input {
+        background-color: #1a1a1a;
+        border: 1px solid #555;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .btn-custom {
+        background-color: #007acc;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-custom:hover {
+        background-color: #0099ff;
+    }
+
+    .student-card {
+        background: #3a3a3a;
+        color: white;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        border: 1px solid #555;
+    }
+
+    .message {
+        color: #ffcc00;
+        font-weight: bold;
+    }
+</style>
+
+<div class="section-bg">
+    <h1>Student Management System</h1>
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="message">@message</p>
+    }
+</div>
+
+<div class="section-bg">
+    <h3>All Students</h3>
+    <button class="btn-custom" @onclick="LoadStudents">Refresh List</button>
+    @if (students.Count == 0)
+    {
+        <p>No students found.</p>
+    }
+    else
+    {
         @foreach (var student in students)
         {
-            <li>@student.FirstName @student.LastName (ID: @student.StudentId, School: @student.School)</li>
+            <div class="student-card">
+                <strong>@student.FirstName @student.LastName</strong> (ID: @student.StudentId, School: @student.School)
+            </div>
         }
-    </ul>
-}
+    }
+</div>
+
+<div class="section-bg">
+    <h3>Get Student Info</h3>
+    <div class="form-group">
+        <label>Student ID:</label>
+        <input type="number" @bind="getStudentId" />
+    </div>
+    <button class="btn-custom" @onclick="GetStudentInfo">Get Info</button>
+    @if (selectedStudent != null)
+    {
+        <div class="student-card">
+            <strong>@selectedStudent.FirstName @selectedStudent.LastName</strong> (ID: @selectedStudent.StudentId, School:
+            @selectedStudent.School)
+        </div>
+    }
+</div>
+
+<div class="section-bg">
+    <h3>Insert Student</h3>
+    <div class="form-group">
+        <label>First Name:</label>
+        <input @bind="newStudent.FirstName" />
+    </div>
+    <div class="form-group">
+        <label>Last Name:</label>
+        <input @bind="newStudent.LastName" />
+    </div>
+    <div class="form-group">
+        <label>School:</label>
+        <input @bind="newStudent.School" />
+    </div>
+    <button class="btn-custom" @onclick="InsertStudent">Insert</button>
+</div>
+
+<div class="section-bg">
+    <h3>Update Student</h3>
+    <div class="form-group">
+        <label>Student ID:</label>
+        <input type="number" @bind="updateStudent.StudentId" />
+    </div>
+    <div class="form-group">
+        <label>First Name:</label>
+        <input @bind="updateStudent.FirstName" />
+    </div>
+    <div class="form-group">
+        <label>Last Name:</label>
+        <input @bind="updateStudent.LastName" />
+    </div>
+    <div class="form-group">
+        <label>School:</label>
+        <input @bind="updateStudent.School" />
+    </div>
+    <button class="btn-custom" @onclick="UpdateStudent">Update</button>
+</div>
+
+<div class="section-bg">
+    <h3>Delete Student</h3>
+    <div class="form-group">
+        <label>Student ID:</label>
+        <input type="number" @bind="deleteStudentId" />
+    </div>
+    <button class="btn-custom" @onclick="DeleteStudent">Delete</button>
+</div>
